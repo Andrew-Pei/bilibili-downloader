@@ -1,0 +1,27 @@
+{
+  "main": "index.html",
+  "logo": "logo.png",
+  "preload": "preload.js",
+  "pluginName": "B站视频下载",
+  "description": "复制B站链接，呼出uTools即可下载视频",
+  "version": "1.0.0",
+  "author": "Andrew Pei",
+  "homepage": "https://github.com/Andrew-Pei/bilibili-downloader",
+  "features": [
+    {
+      "code": "bilibili-download",
+      "explain": "下载B站视频",
+      "platform": ["win32"],
+      "cmds": [
+        "b站下载",
+        "bilibili下载",
+        {
+          "type": "regex",
+          "label": "下载此B站视频",
+          "pattern": "https?://(?:www\\.)?(?:bilibili\\.com|b23\\.tv)/\\S+",
+          "main": "index.html"
+        }
+      ]
+    }
+  ]
+}
