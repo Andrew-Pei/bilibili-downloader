@@ -22,8 +22,7 @@ except ImportError:
 
 # ── 配置 ────────────────────────────────────────────────
 
-PORT = int(os.environ.get("PORT", 7860))
-HOST = os.environ.get("HOST", "0.0.0.0")
+PORT = 19945
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, "downloads")
 INDEX_HTML = os.path.join(SCRIPT_DIR, "index.html")
@@ -283,17 +282,15 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    server = ThreadingHTTPServer((HOST, PORT), Handler)
-    url = f"http://{'localhost' if HOST == '127.0.0.1' else HOST}:{PORT}"
+    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
+    url = f"http://127.0.0.1:{PORT}"
 
     print(f"B站视频下载工具已启动！")
     print(f"请在浏览器中访问：{url}")
     print(f"按 Ctrl+C 退出程序")
     print(f"下载文件临时目录：{OUTPUT_DIR}")
 
-    # 仅本地模式自动打开浏览器
-    if HOST == "127.0.0.1":
-        threading.Timer(0.5, webbrowser.open, args=(url,)).start()
+    threading.Timer(0.5, webbrowser.open, args=(url,)).start()
 
     try:
         server.serve_forever()
