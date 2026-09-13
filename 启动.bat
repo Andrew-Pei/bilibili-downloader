@@ -6,7 +6,10 @@ echo    B站视频下载工具 - 正在启动...
 echo ========================================
 echo.
 
-python --version >nul 2>&1
+set PYTHON="C:\Users\28444\AppData\Roaming\TRAE SOLO CN\ModularData\ai-agent\vm\tools\python\python.exe"
+set PYTHONPATH=
+
+%PYTHON% --version >nul 2>&1
 if errorlevel 1 (
     echo [错误] 未找到 Python，请先安装 Python 3.8+ 并添加到 PATH
     echo 下载地址：https://www.python.org/downloads/
@@ -14,10 +17,10 @@ if errorlevel 1 (
     exit /b 1
 )
 
-python -c "import yt_dlp" >nul 2>&1
+%PYTHON% -c "import yt_dlp" >nul 2>&1
 if errorlevel 1 (
     echo [信息] 首次使用，正在安装依赖 yt-dlp...
-    python -m pip install yt-dlp
+    %PYTHON% -m pip install yt-dlp
     echo.
 )
 
@@ -31,6 +34,6 @@ if errorlevel 1 (
 echo [成功] 正在打开浏览器...
 echo.
 
-python "%~dp0bilibili_gui.py"
+%PYTHON% "%~dp0bilibili_gui.py"
 
 pause
