@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B站视频下载工具</title>
+<style>
+  :root {
+    --bili-pink: #fb7299;
+    --bili-pink-light: #fc8bab;
+    --bili-pink-dark: #e85d85;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --text-muted: #999;
+    --bg-page: #f4f5f7;
+    --bg-card: #ffffff;
+    --border: #e8e8e8;
+    --border-focus: var(--bili-pink);
+    --success: #52c41a;
+    --success-bg: #f6ffed;
+    --error: #ff4d4f;
+    --error-bg: #fff2f0;
+    --info: #1890ff;
+    --info-bg: #e6f7ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .container {
+    background: var(--bg-card);
+    border-radius: 12px;
+    width: 580px;
+    max-width: 100%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+
+  /* Header */
+  .header {
+    padding: 28px 32px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header h1 .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--bili-pink);
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .header p {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* Body */
+  .body { padding: 24px 32px; }
+
+  .input-group { margin-bottom: 16px; }
+  .input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .input-group input {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: "SF Mono", "Fira Code", Consolas, monospace;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    background: #fafafa;
+  }
+  .input-group input:focus {
+    outline: none;
+    border-color: var(--bili-pink);
+    box-shadow: 0 0 0 3px rgba(251,114,153,0.1);
+    background: #fff;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  button {
+    padding: 9px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--bili-pink);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--bili-pink-dark); }
+  .btn-primary:disabled {
+    background: var(--bili-pink-light);
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border);
+  }
+  .btn-ghost:hover { background: #f5f5f5; }
+  .btn-download {
+    background: #fff;
+    color: var(--bili-pink);
+    border-color: var(--bili-pink);
+  }
+  .btn-download:hover {
+    background: var(--bili-pink);
+    color: #fff;
+  }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .status-badge.idle { background: #f5f5f5; color: var(--text-muted); }
+  .status-badge.fetching { background: var(--info-bg); color: var(--info); }
+  .status-badge.downloading { background: var(--info-bg); color: var(--info); }
+  .status-badge.done { background: var(--success-bg); color: var(--success); }
+  .status-badge.error { background: var(--error-bg); color: var(--error); }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .status-badge.fetching .status-dot,
+  .status-badge.downloading .status-dot {
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Progress */
+  .progress-section { margin-bottom: 16px; }
+  .progress-track {
+    width: 100%;
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--bili-pink);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+  .progress-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Video info card */
+  .info-card {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    display: none;
+    margin-bottom: 16px;
+  }
+  .info-card.show { display: block; }
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 4px 0;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .info-label {
+    color: var(--text-muted);
+    width: 60px;
+    flex-shrink: 0;
+  }
+  .info-value {
+    color: var(--text-primary);
+    flex: 1;
+    word-break: break-all;
+  }
+
+  /* Download action */
+  .download-action { display: none; margin-bottom: 16px; }
+  .download-action.show { display: block; }
+
+  /* Footer */
+  .footer {
+    padding: 16px 32px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+  .footer a {
+    color: var(--bili-pink);
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1><span class="logo-dot"></span>B站视频下载工具</h1>
+    <p>粘贴链接即可下载，支持 bilibili.com 和 b23.tv</p>
+  </div>
+
+  <div class="body">
+    <div class="input-group">
+      <label>视频链接</label>
+      <input type="text" id="url" placeholder="https://www.bilibili.com/video/BV..." />
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" id="downloadBtn" onclick="startDownload()">开始下载</button>
+      <button class="btn-ghost" onclick="clearInput()">清空</button>
+    </div>
+
+    <div class="status-badge idle" id="status">
+      <span class="status-dot"></span>
+      <span id="statusText">就绪</span>
+    </div>
+
+    <div class="info-card" id="infoCard">
+      <div class="info-row"><span class="info-label">标题</span><span class="info-value" id="infoTitle">-</span></div>
+      <div class="info-row"><span class="info-label">UP主</span><span class="info-value" id="infoUploader">-</span></div>
+      <div class="info-row"><span class="info-label">时长</span><span class="info-value" id="infoDuration">-</span></div>
+      <div class="info-row"><span class="info-label">视频ID</span><span class="info-value" id="infoId">-</span></div>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text" id="progressText">0%</div>
+    </div>
+
+    <div class="download-action" id="downloadAction">
+      <button class="btn-download" onclick="saveFile()">保存到下载文件夹</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    基于 yt-dlp · <a href="https://github.com/Andrew-Pei/bilibili-downloader" target="_blank">GitHub</a> · 仅供学习使用
+  </div>
+</div>
+
+<script>
+let pollTimer = null;
+let fileInfo = null;
+
+function startDownload() {
+  const url = document.getElementById('url').value.trim();
+  if (!url) { alert('请输入 B站视频链接'); return; }
+
+  const btn = document.getElementById('downloadBtn');
+  btn.disabled = true;
+  btn.textContent = '下载中...';
+  document.getElementById('infoCard').classList.remove('show');
+  document.getElementById('downloadAction').classList.remove('show');
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('progressText').textContent = '0%';
+  setStatus('fetching', '正在获取视频信息...');
+
+  fetch('/api/download', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: url })
+  }).then(r => r.json()).then(data => {
+    if (data.error) {
+      alert(data.error);
+      resetButton();
+    } else {
+      startPolling();
+    }
+  }).catch(err => {
+    alert('请求失败: ' + err);
+    resetButton();
+  });
+}
+
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(pollStatus, 500);
+}
+
+function pollStatus() {
+  fetch('/api/status').then(r => r.json()).then(data => {
+    if (data.progress !== undefined) {
+      document.getElementById('progressFill').style.width = data.progress + '%';
+      const dl = fmtSize(data.downloaded);
+      const total = fmtSize(data.total);
+      const speed = fmtSize(data.speed) + '/s';
+      document.getElementById('progressText').textContent =
+        data.progress + '%  ·  ' + dl + ' / ' + total + '  ·  ' + speed;
+    }
+
+    setStatus(data.state, data.message);
+
+    if (data.video_info) {
+      document.getElementById('infoCard').classList.add('show');
+      document.getElementById('infoTitle').textContent = data.video_info.title;
+      document.getElementById('infoUploader').textContent = data.video_info.uploader;
+      document.getElementById('infoDuration').textContent = data.video_info.duration;
+      document.getElementById('infoId').textContent = data.video_info.id;
+    }
+
+    if (data.state === 'done') {
+      clearInterval(pollTimer);
+      pollTimer = null;
+      resetButton();
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('progressText').textContent = '100%';
+      if (data.file_name) {
+        fileInfo = { name: data.file_name };
+        document.getElementById('downloadAction').classList.add('show');
+      }
+    } else if (data.state === 'error') {
+      clearInterval(pollTimer);
+      pollTimer = null;
+      resetButton();
+      alert('下载失败: ' + (data.error || '未知错误'));
+    }
+  }).catch(err => console.error('Poll error:', err));
+}
+
+function saveFile() {
+  if (!fileInfo) return;
+  const a = document.createElement('a');
+  a.href = '/api/file?name=' + encodeURIComponent(fileInfo.name);
+  a.download = fileInfo.name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function setStatus(state, message) {
+  const badge = document.getElementById('status');
+  const text = document.getElementById('statusText');
+  badge.className = 'status-badge ' + state;
+  text.textContent = message || '就绪';
+}
+
+function resetButton() {
+  const btn = document.getElementById('downloadBtn');
+  btn.disabled = false;
+  btn.textContent = '开始下载';
+}
+
+function clearInput() {
+  document.getElementById('url').value = '';
+  document.getElementById('url').focus();
+}
+
+function fmtSize(n) {
+  if (!n) return '—';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  for (let u of units) {
+    if (n < 1024) return n.toFixed(1) + ' ' + u;
+    n /= 1024;
+  }
+  return n.toFixed(1) + ' TB';
+}
+
+document.getElementById('url').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') startDownload();
+});
+</script>
+</body>
+</html>
