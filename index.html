@@ -226,6 +226,28 @@
   .download-action { display: none; margin-bottom: 16px; }
   .download-action.show { display: block; }
 
+  /* Static mode notice */
+  .notice {
+    display: none;
+    padding: 14px 18px;
+    background: #fffbe6;
+    border: 1px solid #ffe58f;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #614700;
+  }
+  .notice.show { display: block; }
+  .notice code {
+    background: rgba(0,0,0,0.06);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 12px;
+  }
+  .notice a { color: var(--bili-pink); text-decoration: none; }
+
   /* Footer */
   .footer {
     padding: 16px 32px;
@@ -248,6 +270,14 @@
   </div>
 
   <div class="body">
+    <div class="notice" id="staticNotice">
+      <strong>当前为在线预览模式</strong><br>
+      GitHub Pages 是静态托管，无法运行下载后端。请在本地启动服务后使用：<br>
+      <code>git clone https://github.com/Andrew-Pei/bilibili-downloader.git</code><br>
+      <code>pip install yt-dlp && python bilibili_gui.py</code><br>
+      浏览器会自动打开 <code>http://127.0.0.1:19945</code>，即可下载视频。
+    </div>
+
     <div class="input-group">
       <label>视频链接</label>
       <input type="text" id="url" placeholder="https://www.bilibili.com/video/BV..." />
@@ -290,6 +320,14 @@
 <script>
 let pollTimer = null;
 let fileInfo = null;
+const isLocal = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+
+// 非本地环境（GitHub Pages），显示静态模式提示，禁用下载
+if (!isLocal) {
+  document.getElementById('staticNotice').classList.add('show');
+  document.getElementById('downloadBtn').disabled = true;
+  document.getElementById('downloadBtn').textContent = '需本地运行';
+}
 
 function startDownload() {
   const url = document.getElementById('url').value.trim();
