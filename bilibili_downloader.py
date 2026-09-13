@@ -63,7 +63,7 @@ def download_video(url: str, output_dir: str = "downloads") -> None:
         "format": "bestvideo+bestaudio/best",
         "merge_output_format": "mp4",
         # 输出文件名格式：标题_视频ID.mp4
-        "outtmpl": os.path.join(output_dir, "%(title)s_%(id)s.mp4"),
+        "outtmpl": os.path.join(output_dir, "%(title)s.mp4"),
         # 进度日志
         "logger": ProgressLogger(),
         # 显示进度条

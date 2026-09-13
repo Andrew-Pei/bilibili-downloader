@@ -103,7 +103,7 @@ def download_worker(url: str):
         ydl_opts = {
             "format": "bestvideo+bestaudio/best",
             "merge_output_format": "mp4",
-            "outtmpl": os.path.join(OUTPUT_DIR, "%(title)s_%(id)s.mp4"),
+            "outtmpl": os.path.join(OUTPUT_DIR, "%(title)s.mp4"),
             "progress_hooks": [progress_hook],
             "http_headers": {
                 "User-Agent": (
@@ -138,7 +138,7 @@ def download_worker(url: str):
             ydl.download([url])
 
             # 找到下载的文件
-            file_name = f"{info.get('title', 'video')}_{info.get('id', '')}.mp4"
+            file_name = f"{info.get('title', 'video')}.mp4"
             file_path = os.path.join(OUTPUT_DIR, file_name)
 
             if os.path.exists(file_path):
