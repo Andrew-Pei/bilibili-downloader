@@ -1,38 +1,37 @@
 @echo off
-chcp 65001 >nul 2>&1
-title Bç«™è§†é¢‘ä¸‹è½½å·¥å…·
+title BÕ¾ÊÓÆµÏÂÔØ¹¤¾ß
 
 echo ========================================
-echo    Bç«™è§†é¢‘ä¸‹è½½å·¥å…· - æ­£åœ¨å¯åŠ¨...
+echo    BÕ¾ÊÓÆµÏÂÔØ¹¤¾ß - ÕıÔÚÆô¶¯...
 echo ========================================
 echo.
 
-:: æ£€æŸ¥ Python
+:: ¼ì²é Python
 python --version >nul 2>&1
 if errorlevel 1 (
-    echo [é”™è¯¯] æœªæ‰¾åˆ° Pythonï¼Œè¯·å…ˆå®‰è£… Python 3.8+ å¹¶æ·»åŠ åˆ° PATH
-    echo ä¸‹è½½åœ°å€ï¼šhttps://www.python.org/downloads/
+    echo [´íÎó] Î´ÕÒµ½ Python£¬ÇëÏÈ°²×° Python 3.8+ ²¢Ìí¼Óµ½ PATH
+    echo ÏÂÔØµØÖ·£ºhttps://www.python.org/downloads/
     pause
     exit /b 1
 )
 
-:: æ£€æŸ¥å¹¶å®‰è£… yt-dlp
+:: ¼ì²é²¢°²×° yt-dlp
 python -c "import yt_dlp" >nul 2>&1
 if errorlevel 1 (
-    echo [ä¿¡æ¯] é¦–æ¬¡ä½¿ç”¨ï¼Œæ­£åœ¨å®‰è£…ä¾èµ– yt-dlp...
+    echo [ĞÅÏ¢] Ê×´ÎÊ¹ÓÃ£¬ÕıÔÚ°²×°ÒÀÀµ yt-dlp...
     python -m pip install yt-dlp
     echo.
 )
 
-:: æ£€æŸ¥ ffmpeg
+:: ¼ì²é ffmpeg
 where ffmpeg >nul 2>&1
 if errorlevel 1 (
-    echo [æç¤º] æœªæ£€æµ‹åˆ° ffmpegï¼Œé«˜æ¸…è§†é¢‘åˆå¹¶éœ€è¦å®ƒ
-    echo ä¸‹è½½åœ°å€ï¼šhttps://ffmpeg.org/download.html
+    echo [ÌáÊ¾] Î´¼ì²âµ½ ffmpeg£¬¸ßÇåÊÓÆµºÏ²¢ĞèÒªËü
+    echo ÏÂÔØµØÖ·£ºhttps://ffmpeg.org/download.html
     echo.
 )
 
-echo [æˆåŠŸ] æ­£åœ¨æ‰“å¼€æµè§ˆå™¨...
+echo [³É¹¦] ÕıÔÚ´ò¿ªä¯ÀÀÆ÷...
 echo.
 
 python "%~dp0bilibili_gui.py"
